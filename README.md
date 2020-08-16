@@ -1,5 +1,9 @@
 # SychronisationCoverageAnalyzer
-Analyses the Code, instrument it and produces a Sychronisation Coverage report
+Analyses the Code, instrument it and produces a Sychronization Coverage report
+
+#Build Instructions
+mvn clean install
+
 
 #Code instrumentation and execution
 #Usage
