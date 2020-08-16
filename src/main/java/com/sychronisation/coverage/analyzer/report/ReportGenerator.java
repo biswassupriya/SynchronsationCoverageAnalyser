@@ -80,7 +80,7 @@ public class ReportGenerator {
             if(matcher.matches()) {
                 String thread=line.split("_")[2];
                 String result = line.split("-")[2];
-                String className=line.split("\\(")[1].split("\\)")[0];
+                String className=line.split("\\(")[1].split("\\)")[0].split("Test")[0];
                 String newLine=className + ":" + thread + ":" + result;
                 arrayList.add(newLine);
             }

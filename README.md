@@ -13,9 +13,10 @@ java -jar <path_to_jar>/SychronisationCoverageAnalyzer-1.0-SNAPSHOT-jar-with-dep
 java -jar <path_to_jar>/SychronisationCoverageAnalyzer-1.0-SNAPSHOT-jar-with-dependencies.jar <path_to_execution_results>/execution_results.txt
 #Example:
  java -jar G:/projects/git/SynchronsationCoverageAnalyser/target/SychronisationCoverageAnalyzer-1.0-SNAPSHOT-jar-with-dependencies.jar  G:/projects/git/CodeCoverageAnalyzer/instrumented/execution_results.txt
+
 -----------------------------------------------------------------------------------------------------------------------------------------------
 ClassName                                                      Single-Thread(1)       Multi-Thread(10)       Concurrency-Coverage-Percentage(%)
 -----------------------------------------------------------------------------------------------------------------------------------------------
-com.library.system.service.BookInventoryServiceTest                100                      0                    50
-com.library.system.service.BookInventorySynchronisedServiceTest    100                    100                    100
+com.library.system.service.BookInventorySynchronisedService    100                    100                    100
+com.library.system.service.BookInventoryService                100                      0                    50
 -----------------------------------------------------------------------------------------------------------------------------------------------
