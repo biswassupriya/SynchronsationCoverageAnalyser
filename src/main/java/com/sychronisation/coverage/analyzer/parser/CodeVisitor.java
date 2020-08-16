@@ -22,6 +22,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Class parses a source file (given here as a string), and gets at an object of type CompilationUnit,
+ * which is the root of the abstract syntax tree representation
+ */
+
 public class CodeVisitor extends ModifierVisitorAdapter<Object> {
 
     private String filename;

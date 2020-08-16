@@ -6,6 +6,9 @@ import javassist.NotFoundException;
 import java.lang.instrument.Instrumentation;
 import java.util.logging.Logger;
 
+/** SynchronisationAnalyzerAgent class provides services needed to instrument Java programming language code.
+ *  Instrumentation is the addition of byte-codes to methods*/
+
 public class SynchronisationAnalyzerAgent {
     private static final Logger log = Logger.getLogger(SynchronisationAnalyzerAgent.class.getName());
     /**
