@@ -10,6 +10,10 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/** Report Generator produces the concurrency coverage percentage metric
+ * @parces the execution results
+ * @produces a report based on the test result */
+
 public class ReportGenerator {
     public static void main(String[] args) throws FileNotFoundException {
         List<String> arrayList = readFile(args[0]);
@@ -38,6 +42,7 @@ public class ReportGenerator {
         }
     }
 
+    /** method helps generating the report */
     private static void generateReport(int keyLength, HashMap<String, Coverage> stringCoverageHashMap) {
         System.out.println("-----------------------------------------------------------------------------------------------------------------------------------------------");
         System.out.println("ClassName                                                      Single-Thread(1)       Multi-Thread(10)       Concurrency-Coverage-Percentage(%)");
@@ -59,6 +64,7 @@ public class ReportGenerator {
         System.out.println("-----------------------------------------------------------------------------------------------------------------------------------------------");
     }
 
+    /** method parses the executio results files and extract the test results */
     private static List<String> readFile(String arg) throws FileNotFoundException {
         String patternString1 = "((Test-testConcurrency)(.+?))";
 

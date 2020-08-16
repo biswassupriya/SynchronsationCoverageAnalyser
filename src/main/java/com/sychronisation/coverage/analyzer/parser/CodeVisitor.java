@@ -22,18 +22,23 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CoverageVisitor extends ModifierVisitorAdapter<Object> {
-    // AST nodes don't know which file they come from, so we'll pass the information in
+public class CodeVisitor extends ModifierVisitorAdapter<Object> {
+
     private String filename;
 
-    // Maps filenames and line numbers to true (executed) or false (not executed).
+    /**
+     * Maps filenames and line numbers to true (executed) or false (not executed).
+     */
     private static Map<String, Map<Integer, Boolean>> coverage =
             new HashMap<String, Map<Integer, Boolean>>();
 
-    public CoverageVisitor(String filename) {
+    public CodeVisitor(String filename) {
         this.filename = filename;
     }
 
+    /**
+     * traverses block statement and adds instrumentation code.
+     */
     @Override
     public Node visit(ExpressionStmt node, Object arg) {
         BlockStmt block = new BlockStmt();
@@ -42,7 +47,9 @@ public class CoverageVisitor extends ModifierVisitorAdapter<Object> {
         return block;
     }
 
-
+    /**
+     * traverses synchronised statement and adds instrumentation code.
+     */
     @Override
     public Node visit(SynchronizedStmt node, Object arg) {
         BlockStmt block = new BlockStmt();
@@ -51,23 +58,35 @@ public class CoverageVisitor extends ModifierVisitorAdapter<Object> {
         return block;
     }
 
+    /**
+     * makeCoverageTrackingCall just creates a call to markExecuted,
+     * with the filename and line number as arguments
+     */
     private Statement makeCoverageTrackingCall(String filename, int line) {
-        CoverageVisitor.markExecutable(filename, line);
-        NameExpr coverageTracker = ASTHelper.createNameExpr("CoverageVisitor");
+        CodeVisitor.markExecutable(filename, line);
+        NameExpr coverageTracker = ASTHelper.createNameExpr("CodeVisitor");
         MethodCallExpr call = new MethodCallExpr(coverageTracker, "markExecuted");
         ASTHelper.addArgument(call, new StringLiteralExpr(filename));
         ASTHelper.addArgument(call, new IntegerLiteralExpr(String.valueOf(line)));
         return new ExpressionStmt(call);
     }
 
+    /**
+     * javaparser has methods to modify ASTs,
+     * in the form of a special visitor implementation called ModifierVisitorAdapter,
+     * which has each visit method return an AST node
+     */
     public static void main(String[] args) throws IOException, ParseException {
         File file = new File(args[0]);
         CompilationUnit unit = JavaParser.parse(new FileReader(file));
-        unit.accept(new CoverageVisitor(file.getAbsolutePath()), null);
+        unit.accept(new CodeVisitor(file.getAbsolutePath()), null);
         System.out.println(unit.toString());
     }
 
 
+    /**
+     * Marks the line as executable
+     */
     public static void markExecutable(String filename, int line) {
         if (!coverage.containsKey(filename)) {
             coverage.put(filename, new HashMap<Integer, Boolean>());
@@ -75,6 +94,9 @@ public class CoverageVisitor extends ModifierVisitorAdapter<Object> {
         coverage.get(filename).put(line, false);
     }
 
+    /**
+     * Marks the line as executed, called from the instrumented execution
+     */
     public static void markExecuted(String filename, int line) {
         if (!coverage.containsKey(filename)) {
             coverage.put(filename, new HashMap<Integer, Boolean>());
@@ -82,6 +104,7 @@ public class CoverageVisitor extends ModifierVisitorAdapter<Object> {
         coverage.get(filename).put(line, true);
     }
 
+    /** JVM shutdown hook, to indicate program termination */
     static {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
@@ -91,7 +114,9 @@ public class CoverageVisitor extends ModifierVisitorAdapter<Object> {
         });
     }
 
-
+    /**
+     * method to serialise the coverage to file
+     */
     private static void writeCoverageToFile() {
         String lcovCoverage = generateLcov();
         String coverageReportPath = System.getProperty("coverage.report.path", "coverage_report.lcov");
@@ -110,6 +135,9 @@ public class CoverageVisitor extends ModifierVisitorAdapter<Object> {
         }
     }
 
+    /**
+     * method generating coverage
+     */
     private static String generateLcov() {
         StringBuilder sb = new StringBuilder();
         for (String filename : coverage.keySet()) {

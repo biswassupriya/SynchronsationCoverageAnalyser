@@ -1,5 +1,8 @@
 package com.sychronisation.coverage.analyzer.model;
 
+/** model class holds  information about the test execution results in single threaded,
+ * multi threaded and the final percentaage outcome */
+
 public class Coverage {
     private int single;
     private int multi;

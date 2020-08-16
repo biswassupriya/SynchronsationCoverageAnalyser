@@ -13,13 +13,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Class transformer which intercepts the method call, used to emit the debug information.
+ *  AspectClassTransformer implements the Class transformer transform class files on byte code level before they are loaded into the Java Virtual Machin
  */
 public class AspectClassTransformer implements ClassFileTransformer {
 
-    /**
-     * We use JUL as this is an java agent which should not depend on any other framework than java.
-     */
     private static final Logger log = Logger.getLogger(AspectClassTransformer.class.getName());
     private ScopedClassPoolFactoryImpl scopedClassPoolFactory = new ScopedClassPoolFactoryImpl();
 
@@ -27,25 +24,24 @@ public class AspectClassTransformer implements ClassFileTransformer {
 
     public void init() throws NotFoundException {
 
-        //Sets the useContextClassLoader =true to get any class type to be correctly resolved with correct OSGI module
         Desc.useContextClassLoader = true;
         rootPool = ClassPool.getDefault();
     }
 
     /**
-     * An agent provides an implementation of this interface method in order to transform class files.
-     * Transforms the given class file and returns a new replacement class file.
-     * We check our config with classes and intercept only when the Corresponding Class Name, Method Name, Method
-     * Signature matches.
+     * An agent gives an implementation of an interface method so that we can change the class files.
+     * changing the mention class file and returns a new substitute class file.
+     * verify the config with classes and intercept if matches the Communicating Class Name, Method Name, Method
+     * Signature.
      *
-     * @param loader              The defining loader of the class to be transformed, may be {@code null}
+     * @param loader              The mentioned loader of the class to be modified, can be {@code null}
      *                            if the bootstrap loader.
-     * @param className           The name of the class in the internal form of fully qualified class.
-     * @param classBeingRedefined If this is triggered by a redefine or re transform, the class being redefined.
-     * @param protectionDomain    The protection domain of the class being defined or redefined.
-     * @param classfileBuffer     The input byte buffer in class file format - Have to be instrumented.
-     * @return The transformed byte code.
-     * @throws IllegalClassFormatException The IllegalClassFormat Exception.
+     * @param className           The nameof the class which is to be instrumented.
+     * @param classBeingRedefined If this is initiated by a redifintion or transformation.
+     * @param protectionDomain    The protection domain of the class entity being transformed
+     * @param classfileBuffer     input byte buffer in classfile format to be instrumented.
+     * @return The modified byte code.
+     * @throws IllegalClassFormatException IllegalClassFormat Exception.
      */
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
@@ -53,7 +49,6 @@ public class AspectClassTransformer implements ClassFileTransformer {
             throws IllegalClassFormatException {
 
         byte[] byteCode = classfileBuffer;
-        // If you wanted to intercept all the classs then you can remove this conditional check.
         log.info("Transforming the class " + className);
         try {
             ClassPool classPool = scopedClassPoolFactory.create(loader, rootPool,
