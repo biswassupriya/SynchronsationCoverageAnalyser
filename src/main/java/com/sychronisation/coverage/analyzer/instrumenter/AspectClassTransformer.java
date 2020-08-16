@@ -61,7 +61,23 @@ public class AspectClassTransformer implements ClassFileTransformer {
                     method.insertAfter("System.out.println(\"Logging using Agent\");");
                 }
                 if (Modifier.isSynchronized(method.getModifiers())) {
+                    method.insertBefore("        try {\n" +
+                            "            Thread.sleep(1000l);\n" +
+                            "        } catch (InterruptedException e) {\n" +
+                            "            // TODO Auto-generated catch block\n" +
+                            "            e.printStackTrace();\n" +
+                            "        }");
                     method.insertAfter("System.out.println(\"Synchronised Method Called\");");
+
+                }
+                if (method.getName().equals("incrementCounter")) {
+                    method.insertBefore("        try {\n" +
+                            "            Thread.sleep(1000l);\n" +
+                            "        } catch (InterruptedException e) {\n" +
+                            "            // TODO Auto-generated catch block\n" +
+                            "            e.printStackTrace();\n" +
+                            "        }");
+                    method.insertAfter("System.out.println(\"AsSynchronous Method Called\");");
                 }
             }
             byteCode = ctClass.toBytecode();
