@@ -13,7 +13,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *  AspectClassTransformer implements the Class transformer transform class files on byte code level before they are loaded into the Java Virtual Machin
+ *  AspectClassTransformer implements the ClassFileTransformer interface to
+ *  transform class files to byte code level before they are loaded into the JVM
  */
 public class AspectClassTransformer implements ClassFileTransformer {
 
@@ -31,13 +32,13 @@ public class AspectClassTransformer implements ClassFileTransformer {
     /**
      * An agent gives an implementation of an interface method so that we can change the class files.
      * changing the mention class file and returns a new substitute class file.
-     * verify the config with classes and intercept if matches the Communicating Class Name, Method Name, Method
+     * verifies the config with classes and intercept if matches found for Class Name, Method Name, Method
      * Signature.
      *
      * @param loader              The mentioned loader of the class to be modified, can be {@code null}
      *                            if the bootstrap loader.
-     * @param className           The nameof the class which is to be instrumented.
-     * @param classBeingRedefined If this is initiated by a redifintion or transformation.
+     * @param className           The name of the class which is to be instrumented.
+     * @param classBeingRedefined If this is initiated by a re-definition or transformation.
      * @param protectionDomain    The protection domain of the class entity being transformed
      * @param classfileBuffer     input byte buffer in classfile format to be instrumented.
      * @return The modified byte code.

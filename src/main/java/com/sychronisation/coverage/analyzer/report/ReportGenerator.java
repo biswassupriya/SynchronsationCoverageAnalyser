@@ -1,4 +1,5 @@
 package com.sychronisation.coverage.analyzer.report;
+
 import com.sychronisation.coverage.analyzer.model.Coverage;
 
 import java.io.File;
@@ -10,9 +11,11 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/** Report Generator produces the concurrency coverage percentage metric
- * @parces the execution results
- * @produces a report based on the test result */
+/**
+ * Report Generator produces the concurrency coverage percentage metric.
+ *
+ * It parses the execution results and produces a report based on the test result
+ */
 
 public class ReportGenerator {
     public static void main(String[] args) throws FileNotFoundException {
@@ -42,7 +45,9 @@ public class ReportGenerator {
         }
     }
 
-    /** method helps generating the report */
+    /**
+     * method helps generating the report
+     */
     private static void generateReport(int keyLength, HashMap<String, Coverage> stringCoverageHashMap) {
         System.out.println("-----------------------------------------------------------------------------------------------------------------------------------------------");
         System.out.println("ClassName                                                      Single-Thread(1)       Multi-Thread(10)       Concurrency-Coverage-Percentage(%)");
@@ -64,7 +69,9 @@ public class ReportGenerator {
         System.out.println("-----------------------------------------------------------------------------------------------------------------------------------------------");
     }
 
-    /** method parses the executio results files and extract the test results */
+    /**
+     * method parses the execution results files and extract the test results
+     */
     private static List<String> readFile(String arg) throws FileNotFoundException {
         String patternString1 = "((Test-testConcurrency)(.+?))";
 
@@ -77,11 +84,11 @@ public class ReportGenerator {
         while (scanner.hasNext()) {
             String line = scanner.next();
             Matcher matcher = pattern.matcher(line);
-            if(matcher.matches()) {
-                String thread=line.split("_")[2];
+            if (matcher.matches()) {
+                String thread = line.split("_")[2];
                 String result = line.split("-")[2];
-                String className=line.split("\\(")[1].split("\\)")[0].split("Test")[0];
-                String newLine=className + ":" + thread + ":" + result;
+                String className = line.split("\\(")[1].split("\\)")[0].split("Test")[0];
+                String newLine = className + ":" + thread + ":" + result;
                 arrayList.add(newLine);
             }
         }
