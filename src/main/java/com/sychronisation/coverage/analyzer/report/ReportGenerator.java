@@ -1,127 +1,125 @@
 package com.sychronisation.coverage.analyzer.report;
 
-import com.sychronisation.coverage.analyzer.model.Coverage;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sychronisation.coverage.analyzer.model.ClassStatistics;
+import com.sychronisation.coverage.analyzer.model.SynchronisationStatistics;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
- * Report Generator produces the concurrency coverage percentage metric.
- *
- * It parses the execution results and produces a report based on the test result
+ * Report Generator produces the concurrency coverage metric.
+ * <p>
+ * It parses the execution results and produces a report which shows the below attributes
+ * <p>
+ * ClassName            Name of Class for which the metric is produced
+ * MethodName           Names of all methods in the class
+ * isSynchronised       Boolean value indicating whether the method is synchronised.
+ * isRunnable           Boolean value indicating whether implements the Runnable Interface
+ * ThreadSafetyCheck    Indicates whether the Runnable class was able to call the synchronised methods with thread safety.
+ * Possible values passed/failed/not applicable
+ * <p>
+ * <p>
+ * Example
+ * ClassName                                                   MethodName      isSynchronised      isRunnable       threadSafetyCheck
+ * com.library.system.model.Library                               setUser               false           false          Not Applicable
+ * com.library.system.service.UserService                        addUsers               false           false                  failed
+ * com.library.system.service.BookService                        addBooks               false           false                  passed
  */
 
 public class ReportGenerator {
-    public static void main(String[] args) throws FileNotFoundException {
-        List<String> arrayList = readFile(args[0]);
+    public static void main(String[] args) throws IOException {
 
-        int keyLength = 0;
-        HashMap<String, Coverage> stringCoverageHashMap = new HashMap<>();
-        for (String list : arrayList) {
-            String[] split = list.split(":");
-            getEntrySet(stringCoverageHashMap, split);
-            if (keyLength < split[0].length()) {
-                keyLength = split[0].length();
-            }
-        }
-        generateReport(keyLength, stringCoverageHashMap);
+        List<SynchronisationStatistics> synchronisationStatistics = processExecutionResults(args[0]);
 
-    }
+        generateReport(synchronisationStatistics);
 
-    private static void getEntrySet(HashMap<String, Coverage> stringCoverageHashMap, String[] split) {
-        if (!stringCoverageHashMap.containsKey(split[0])) {
-            Coverage coverage = getCoverage(split, new Coverage());
-            stringCoverageHashMap.put(split[0], coverage);
-        } else {
-            Coverage coverage = stringCoverageHashMap.get(split[0]);
-            Coverage coverage1 = getCoverage(split, coverage);
-            stringCoverageHashMap.put(split[0], coverage1);
-        }
     }
 
     /**
      * method helps generating the report
      */
-    private static void generateReport(int keyLength, HashMap<String, Coverage> stringCoverageHashMap) {
-        System.out.println("-----------------------------------------------------------------------------------------------------------------------------------------------");
-        System.out.println("ClassName                                                      Single-Thread(1)       Multi-Thread(10)       Concurrency-Coverage-Percentage(%)");
-        System.out.println("-----------------------------------------------------------------------------------------------------------------------------------------------");
-        int finalKeyLength = keyLength;
-        stringCoverageHashMap.entrySet()
-                .stream()
-                .forEach(entry -> {
-                    Coverage value = entry.getValue();
-                    value.setPercentage((value.getMulti() + value.getSingle()) / 2);
-                    entry.setValue(value);
-                    String padding = "                    ";
-                    String multiPadding = padding;
-                    if (entry.getValue().getMulti() == 0) {
-                        multiPadding = padding + "  ";
-                    }
-                    System.out.println(entry.getKey() + addPadding(entry.getKey().length(), finalKeyLength) + entry.getValue().getSingle() + multiPadding + entry.getValue().getMulti() + padding + entry.getValue().getPercentage());
-                });
-        System.out.println("-----------------------------------------------------------------------------------------------------------------------------------------------");
+    private static void generateReport(List<SynchronisationStatistics> synchronisationStatistics) {
+        String className = "ClassName";
+        String methodName = "MethodName";
+        String isSynchronised = "isSynchronised";
+        String isRunnable = "isRunnable";
+        String threadSafetyCheck = "threadSafetyCheck";
+        System.out.format("%1s%60s%20s%16s%25s\n", className, methodName, isSynchronised, isRunnable, threadSafetyCheck);
+
+        synchronisationStatistics.forEach(stats -> {
+            stats.getClassStatistics().getMethodStatistics().forEach(methodStats -> {
+
+
+                int methodNameFormating = 70 - stats.getClassStatistics().getClassName().length();
+
+                System.out.format("%1s%" + methodNameFormating + "s%20s%16s%20s\n", stats.getClassStatistics().getClassName()
+                        , methodStats.getMethodName()
+                        , methodStats.isSynchronised()
+                        , stats.getClassStatistics().getRunnable()
+                        , stats.getThreadSafetyCheck()
+                );
+            });
+        });
+
     }
 
     /**
-     * method parses the execution results files and extract the test results
+     * method parses the execution result file and extract the test results
+     *
+     * @return
      */
-    private static List<String> readFile(String arg) throws FileNotFoundException {
-        String patternString1 = "((Test-testConcurrency)(.+?))";
+    public static List<SynchronisationStatistics> processExecutionResults(String filename) throws IOException {
 
-        Pattern pattern = Pattern.compile(patternString1);
-
-        Scanner scanner = new Scanner(new File(arg));
+        Scanner scanner = new Scanner(new File("G:\\projects\\git\\SynchronsationCoverageAnalyser\\src\\test\\resources\\execution_results.txt"));
         scanner.useDelimiter("\r\n");
 
-        List<String> arrayList = new ArrayList();
+        ObjectMapper objectMapper = new ObjectMapper();
+        HashMap<String, ClassStatistics> stringClassStatisticsHashMap = new HashMap<>();
+        HashMap<String, String> concurrencyResultsMap = new HashMap<>();
+
+
         while (scanner.hasNext()) {
             String line = scanner.next();
-            Matcher matcher = pattern.matcher(line);
-            if (matcher.matches()) {
-                String thread = line.split("_")[2];
+            if (line.contains("className")) {
+                if (line.startsWith(".")) {
+                    String replace = line.replace(".", "");
+                    ClassStatistics classStatistics = objectMapper.readValue(replaceSlashToDots(replace), ClassStatistics.class);
+                    stringClassStatisticsHashMap.put(classStatistics.getClassName(), classStatistics);
+                } else {
+                    ClassStatistics classStatistics = objectMapper.readValue(replaceSlashToDots(line), ClassStatistics.class);
+                    stringClassStatisticsHashMap.put(classStatistics.getClassName(), classStatistics);
+                }
+            }
+
+
+            if (line.contains("testConcurrency") && (line.contains("passed") || line.contains("failed"))) {
                 String result = line.split("-")[2];
-                String className = line.split("\\(")[1].split("\\)")[0].split("Test")[0];
-                String newLine = className + ":" + thread + ":" + result;
-                arrayList.add(newLine);
+                String className = line.split("-")[0];
+                concurrencyResultsMap.put(className, result);
             }
         }
         scanner.close();
 
-        return arrayList;
+        List<SynchronisationStatistics> synchronisationStatistics = new ArrayList<>();
+
+        stringClassStatisticsHashMap.keySet().forEach(className -> {
+            if (concurrencyResultsMap.containsKey(className)) {
+                synchronisationStatistics.add(new SynchronisationStatistics(stringClassStatisticsHashMap.get(className), concurrencyResultsMap.get(className)));
+            } else {
+                synchronisationStatistics.add(new SynchronisationStatistics(stringClassStatisticsHashMap.get(className), "Not Applicable"));
+            }
+        });
+
+        return synchronisationStatistics;
+
     }
 
-    private static String addPadding(int length, int finalKeyLength) {
-
-        int spacesRequired = 4;
-        StringBuilder sb = new StringBuilder();
-        if (length < finalKeyLength) {
-            spacesRequired += finalKeyLength - length;
-        }
-        for (int i = 0; i < spacesRequired; i++) {
-            sb.append(' ');
-        }
-        return sb.toString();
-    }
-
-    private static Coverage getCoverage(String[] split, Coverage coverage) {
-        Coverage coverage1 = coverage;
-        if (split[1].contains("withSingleThread") && split[2].contains("passed")) {
-            coverage1.setSingle(100);
-        } else if (split[1].contains("withSingleThread") && split[2].contains("failed")) {
-            coverage1.setSingle(0);
-        }
-        if (split[1].contains("withMultipleThread") && split[2].contains("passed")) {
-            coverage1.setMulti(100);
-        } else if (split[1].contains("withMultipleThread") && split[2].contains("failed")) {
-            coverage1.setMulti(0);
-        }
-        return coverage1;
+    private static String replaceSlashToDots(final String line) {
+        return line.replace('/', '.');
     }
 }

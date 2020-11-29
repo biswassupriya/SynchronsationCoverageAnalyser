@@ -1,4 +1,8 @@
 package com.sychronisation.coverage.analyzer.instrumenter;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sychronisation.coverage.analyzer.model.ClassStatistics;
+import com.sychronisation.coverage.analyzer.model.MethodStatistics;
 import javassist.*;
 import javassist.runtime.Desc;
 import javassist.scopedpool.ScopedClassPoolFactoryImpl;
@@ -13,17 +17,18 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *  AspectClassTransformer implements the ClassFileTransformer interface to
- *  transform class files to byte code level before they are loaded into the JVM
+ * AspectClassTransformer implements the ClassFileTransformer interface to
+ * transform class files to byte code level before they are loaded into the JVM
  */
 public class AspectClassTransformer implements ClassFileTransformer {
 
     private static final Logger log = Logger.getLogger(AspectClassTransformer.class.getName());
+    public static final String JAVA_LANG_RUNNABLE = "java.lang.Runnable";
     private ScopedClassPoolFactoryImpl scopedClassPoolFactory = new ScopedClassPoolFactoryImpl();
 
     private ClassPool rootPool;
 
-    public void init() throws NotFoundException {
+    public void init() {
 
         Desc.useContextClassLoader = true;
         rootPool = ClassPool.getDefault();
@@ -42,50 +47,70 @@ public class AspectClassTransformer implements ClassFileTransformer {
      * @param protectionDomain    The protection domain of the class entity being transformed
      * @param classfileBuffer     input byte buffer in classfile format to be instrumented.
      * @return The modified byte code.
-     * @throws IllegalClassFormatException IllegalClassFormat Exception.
      */
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
-                            ProtectionDomain protectionDomain, byte[] classfileBuffer)
-            throws IllegalClassFormatException {
+                            ProtectionDomain protectionDomain, byte[] classfileBuffer) {
 
         byte[] byteCode = classfileBuffer;
-        log.info("Transforming the class " + className);
-        try {
-            ClassPool classPool = scopedClassPoolFactory.create(loader, rootPool,
-                    ScopedClassPoolRepositoryImpl.getInstance());
-            CtClass ctClass = classPool.makeClass(new ByteArrayInputStream(classfileBuffer));
-            CtMethod[] methods = ctClass.getDeclaredMethods();
 
-            for (CtMethod method : methods) {
-                if (method.getName().equals("main")) {
-                    method.insertAfter("System.out.println(\"Logging using Agent\");");
-                }
-                if (Modifier.isSynchronized(method.getModifiers())) {
-                    method.insertBefore("        try {\n" +
-                            "            Thread.sleep(1000l);\n" +
-                            "        } catch (InterruptedException e) {\n" +
-                            "            // TODO Auto-generated catch block\n" +
-                            "            e.printStackTrace();\n" +
-                            "        }");
-                    method.insertAfter("System.out.println(\"Synchronised Method Called\");");
+        String packages = System.getProperty("packages");
 
+        ObjectMapper objectMapper = new ObjectMapper();
+
+
+        String packageName = convertDotToSlash(packages);
+        if (className.contains(packageName) && !className.contains("Test")) {
+            ClassStatistics classStatistics = new ClassStatistics();
+
+            try {
+                ClassPool classPool = scopedClassPoolFactory.create(loader, rootPool,
+                        ScopedClassPoolRepositoryImpl.getInstance());
+                CtClass ctClass = classPool.makeClass(new ByteArrayInputStream(classfileBuffer));
+                CtMethod[] methods = ctClass.getDeclaredMethods();
+                classStatistics.setClassName(className);
+                CtClass[] interfaces = ctClass.getInterfaces();
+                boolean isRunnable = false;
+                for (CtClass anInterface : interfaces) {
+                    if (JAVA_LANG_RUNNABLE.equals(anInterface.getName())) {
+                        isRunnable = true;
+                    }
                 }
-                if (method.getName().equals("incrementCounter")) {
-                    method.insertBefore("        try {\n" +
-                            "            Thread.sleep(1000l);\n" +
-                            "        } catch (InterruptedException e) {\n" +
-                            "            // TODO Auto-generated catch block\n" +
-                            "            e.printStackTrace();\n" +
-                            "        }");
-                    method.insertAfter("System.out.println(\"AsSynchronous Method Called\");");
+                classStatistics.setRunnable(isRunnable);
+
+
+                for (CtMethod method : methods) {
+
+                    if (method.getName().equals("main")) {
+                        method.insertAfter("System.out.println(\"Logging using Agent\");");
+                    }
+                    boolean isSychronised = false;
+                    if (Modifier.isSynchronized(method.getModifiers())) {
+                        isSychronised = true;
+                    }
+                    if (method.getName().equals("run")) {
+                        method.insertBefore("        try {\n" +
+                                "            Thread.sleep(50000l);\n" +
+                                "        } catch (InterruptedException e) {\n" +
+                                "            // TODO Auto-generated catch block\n" +
+                                "            e.printStackTrace();\n" +
+                                "        }");
+                    }
+                    MethodStatistics methodStatistics = new MethodStatistics(method.getName(), isSychronised);
+                    classStatistics.getMethodStatistics().add(methodStatistics);
                 }
+
+                System.out.println(objectMapper.writeValueAsString(classStatistics));
+                byteCode = ctClass.toBytecode();
+                ctClass.detach();
+            } catch (Throwable ex) {
+                log.log(Level.SEVERE, "Error in transforming the class: " + className, ex);
             }
-            byteCode = ctClass.toBytecode();
-            ctClass.detach();
-        } catch (Throwable ex) {
-            log.log(Level.SEVERE, "Error in transforming the class: " + className, ex);
         }
         return byteCode;
+    }
+
+    private static String convertDotToSlash(final String srcName) {
+        return srcName.replace('.', '/');
     }
 }

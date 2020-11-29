@@ -17,10 +17,13 @@ public class SynchronisationAnalyzerAgent {
      *
      * @param agentArgs       The list of agent arguments
      * @param instrumentation The instrumentation object
-     * @throws InstantiationException While  an instantiation of object cause an error.
      */
-    public static void premain(String agentArgs, Instrumentation instrumentation) throws InstantiationException, NotFoundException {
+    public static void premain(String agentArgs, Instrumentation instrumentation) throws NotFoundException {
         log.info("Starting Java Agent......");
+        System.setProperty("packages", agentArgs.split("=")[1]);
+        String packages = System.getProperty("packages");
+        System.out.println("PackagesToScan: " + packages);
+
         AspectClassTransformer aspectClassTransformer = new AspectClassTransformer();
         aspectClassTransformer.init();
         instrumentation.addTransformer(aspectClassTransformer);
