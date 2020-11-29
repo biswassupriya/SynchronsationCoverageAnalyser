@@ -76,8 +76,8 @@ public class ReportGenerator {
         double d = (totalNumberofSynchronisedMethods.size() * 100 )/totalNumberofMethods.size();
         System.out.format("\n Total Number Of Classes: " + numberOfClasses);
         System.out.format("\n Total Number Of Methods: " + totalNumberofMethods.size());
-        System.out.format("\n Total Number Of Synchronised Methods: " + totalNumberofSynchronisedMethods.size());
-        System.out.format("\n Synchronised Method Percentage: " + d + " percent");
+        System.out.format("\n Total Number Of Synchronized Methods: " + totalNumberofSynchronisedMethods.size());
+        System.out.format("\n Synchronized Method Percentage: " + d + " percent");
 
 
     }

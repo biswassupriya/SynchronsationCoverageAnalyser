@@ -1,5 +1,8 @@
 package com.sychronisation.coverage.analyzer.model;
 
+/**
+ * Model Class to store the Method name, and whether the method is synchronised
+ */
 
 public class MethodStatistics {
 

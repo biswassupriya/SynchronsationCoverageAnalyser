@@ -29,5 +29,5 @@ java -jar <path_to_jar>/SychronisationCoverageAnalyzer-1.0-SNAPSHOT-jar-with-dep
 
  #Total Number Of Classes: 9
  #Total Number Of Methods: 35
- #Total Number Of Synchronised Methods: 1
- #Synchronised Method Percentage: 2.0 percent
+ #Total Number Of Synchronized Methods: 1
+ #Synchronized Method Percentage: 2.0 percent

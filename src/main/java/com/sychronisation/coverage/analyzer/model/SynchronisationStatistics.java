@@ -1,5 +1,8 @@
 package com.sychronisation.coverage.analyzer.model;
 
+/**
+ * Model Class to store the ClassStatistics, and whether the class passed the thread safety checks
+ */
 public class SynchronisationStatistics {
     public SynchronisationStatistics() {
     }

@@ -3,6 +3,9 @@ package com.sychronisation.coverage.analyzer.model;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Model Class to store the class name, and the list of methods associated with this class
+ */
 public class ClassStatistics {
 
     private String className;
