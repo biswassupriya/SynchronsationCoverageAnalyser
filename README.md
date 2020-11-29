@@ -16,7 +16,7 @@ java -javaagent:G:/projects/git/SynchronsationCoverageAnalyser/target/Sychronisa
 #Usage
 java -jar <path_to_jar>/SychronisationCoverageAnalyzer-1.0-SNAPSHOT-jar-with-dependencies.jar <path_to_execution_results>/execution_results.txt
 #Example:
- java -jar G:/projects/git/SynchronsationCoverageAnalyser/target/SychronisationCoverageAnalyzer-1.0-SNAPSHOT-jar-with-dependencies.jar  G:/projects/git/CodeCoverageAnalyzer/instrumented/execution_results.txt
+ java -jar E:/git/SynchronsationCoverageAnalyser/target/SychronisationCoverageAnalyzer-1.0-SNAPSHOT-jar-with-dependencies.jar  E:\git\SynchronsationCoverageAnalyser\src\test\resources\execution_results.txt
 
 #Example - OutPut
  
@@ -26,3 +26,8 @@ java -jar <path_to_jar>/SychronisationCoverageAnalyzer-1.0-SNAPSHOT-jar-with-dep
  # com.library.system.service.BookService                        addBooks               false           false                  passed
  # com.library.system.service.BookCreator                             run               false            true          Not Applicable
  # com.library.system.model.SynchronisedBookIdGenerator         increment                true           false          Not Applicable
+
+ #Total Number Of Classes: 9
+ #Total Number Of Methods: 35
+ #Total Number Of Synchronised Methods: 1
+ #Synchronised Method Percentage: 2.0 percent

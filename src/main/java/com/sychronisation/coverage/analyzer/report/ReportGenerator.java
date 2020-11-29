@@ -51,9 +51,12 @@ public class ReportGenerator {
         String threadSafetyCheck = "threadSafetyCheck";
         System.out.format("%1s%60s%20s%16s%25s\n", className, methodName, isSynchronised, isRunnable, threadSafetyCheck);
 
+        int numberOfClasses=synchronisationStatistics.size();
+        ArrayList<String> totalNumberofMethods=new ArrayList<>();
+        ArrayList<String > totalNumberofSynchronisedMethods=new ArrayList<>();
+
         synchronisationStatistics.forEach(stats -> {
             stats.getClassStatistics().getMethodStatistics().forEach(methodStats -> {
-
 
                 int methodNameFormating = 70 - stats.getClassStatistics().getClassName().length();
 
@@ -63,8 +66,19 @@ public class ReportGenerator {
                         , stats.getClassStatistics().getRunnable()
                         , stats.getThreadSafetyCheck()
                 );
+                totalNumberofMethods.add(methodStats.getMethodName());
+                if(methodStats.isSynchronised()) {
+                    totalNumberofSynchronisedMethods.add(methodStats.getMethodName());
+                }
             });
         });
+
+        double d = (totalNumberofSynchronisedMethods.size() * 100 )/totalNumberofMethods.size();
+        System.out.format("\n Total Number Of Classes: " + numberOfClasses);
+        System.out.format("\n Total Number Of Methods: " + totalNumberofMethods.size());
+        System.out.format("\n Total Number Of Synchronised Methods: " + totalNumberofSynchronisedMethods.size());
+        System.out.format("\n Synchronised Method Percentage: " + d + " percent");
+
 
     }
 
@@ -75,7 +89,7 @@ public class ReportGenerator {
      */
     public static List<SynchronisationStatistics> processExecutionResults(String filename) throws IOException {
 
-        Scanner scanner = new Scanner(new File("G:\\projects\\git\\SynchronsationCoverageAnalyser\\src\\test\\resources\\execution_results.txt"));
+        Scanner scanner = new Scanner(new File(filename));
         scanner.useDelimiter("\r\n");
 
         ObjectMapper objectMapper = new ObjectMapper();

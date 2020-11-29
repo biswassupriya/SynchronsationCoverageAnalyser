@@ -15,9 +15,8 @@ public class ReportGeneratorTest {
     @Test
     public void testReportGenerator() throws IOException {
 
-      //  Scanner scanner = new Scanner(new File("G:\\projects\\git\\SynchronsationCoverageAnalyser\\src\\test\\resources\\execution_results.txt"));
 
-        List<SynchronisationStatistics> synchronisationStatistics = ReportGenerator.processExecutionResults("G:\\projects\\git\\SynchronsationCoverageAnalyser\\src\\test\\resources\\execution_results.txt");
+        List<SynchronisationStatistics> synchronisationStatistics = ReportGenerator.processExecutionResults("E:\\git\\SynchronsationCoverageAnalyser\\src\\test\\resources\\execution_results.txt");
 
         ObjectMapper objectMapper = new ObjectMapper();
 
