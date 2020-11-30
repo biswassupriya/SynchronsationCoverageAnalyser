@@ -6,6 +6,7 @@ import com.sychronisation.coverage.analyzer.model.SynchronisationStatistics;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -15,8 +16,10 @@ public class ReportGeneratorTest {
     @Test
     public void testReportGenerator() throws IOException {
 
+        File file = new File("src\\test\\resources\\execution_results.txt");
+        String fileName = file.getCanonicalPath();
 
-        List<SynchronisationStatistics> synchronisationStatistics = ReportGenerator.processExecutionResults("E:\\git\\SynchronsationCoverageAnalyser\\src\\test\\resources\\execution_results.txt");
+        List<SynchronisationStatistics> synchronisationStatistics = ReportGenerator.processExecutionResults(fileName);
 
         ObjectMapper objectMapper = new ObjectMapper();
 

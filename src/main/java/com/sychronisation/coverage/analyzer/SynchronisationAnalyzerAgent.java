@@ -15,10 +15,10 @@ public class SynchronisationAnalyzerAgent {
      * Configs for intercepting will be read and added to Transformer so that Transformer will intercept when the
      * corresponding Java Class and Method is loaded.
      *
-     * @param agentArgs       The list of agent arguments
+     * @param agentArgs       The list of packages to scan
      * @param instrumentation The instrumentation object
      */
-    public static void premain(String agentArgs, Instrumentation instrumentation) throws NotFoundException {
+    public static void premain(String agentArgs, Instrumentation instrumentation) {
         log.info("Starting Java Agent......");
         System.setProperty("packages", agentArgs.split("=")[1]);
         String packages = System.getProperty("packages");

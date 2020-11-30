@@ -22,13 +22,17 @@ import java.util.Scanner;
  * isRunnable           Boolean value indicating whether implements the Runnable Interface
  * ThreadSafetyCheck    Indicates whether the Runnable class was able to call the synchronised methods with thread safety.
  * Possible values passed/failed/not applicable
- * <p>
- * <p>
+ *
  * Example
  * ClassName                                                   MethodName      isSynchronised      isRunnable       threadSafetyCheck
  * com.library.system.model.Library                               setUser               false           false          Not Applicable
  * com.library.system.service.UserService                        addUsers               false           false                  failed
  * com.library.system.service.BookService                        addBooks               false           false                  passed
+ *
+ *  Total Number Of Classes: 9
+ *  Total Number Of Methods: 35
+ *  Total Number Of Synchronized Methods: 1
+ *  Synchronized Method Percentage: 2.0 percent
  */
 
 public class ReportGenerator {
@@ -42,6 +46,7 @@ public class ReportGenerator {
 
     /**
      * method helps generating the report
+     * @param synchronisationStatistics which needs to be iterated for producing the output
      */
     private static void generateReport(List<SynchronisationStatistics> synchronisationStatistics) {
         String className = "ClassName";
@@ -85,7 +90,9 @@ public class ReportGenerator {
     /**
      * method parses the execution result file and extract the test results
      *
-     * @return
+     * @param filename which needs to be Parsed
+     * @return List of Synchronisation Statistics
+     * @throws IOException if file not found
      */
     public static List<SynchronisationStatistics> processExecutionResults(String filename) throws IOException {
 
