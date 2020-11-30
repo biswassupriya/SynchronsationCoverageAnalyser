@@ -22,17 +22,17 @@ import java.util.Scanner;
  * isRunnable           Boolean value indicating whether implements the Runnable Interface
  * ThreadSafetyCheck    Indicates whether the Runnable class was able to call the synchronised methods with thread safety.
  * Possible values passed/failed/not applicable
- *
+ * <p>
  * Example
  * ClassName                                                   MethodName      isSynchronised      isRunnable       threadSafetyCheck
  * com.library.system.model.Library                               setUser               false           false          Not Applicable
  * com.library.system.service.UserService                        addUsers               false           false                  failed
  * com.library.system.service.BookService                        addBooks               false           false                  passed
- *
- *  Total Number Of Classes: 9
- *  Total Number Of Methods: 35
- *  Total Number Of Synchronized Methods: 1
- *  Synchronized Method Percentage: 2.0 percent
+ * <p>
+ * Total Number Of Classes: 9
+ * Total Number Of Methods: 35
+ * Total Number Of Synchronized Methods: 1
+ * Synchronized Method Percentage: 2.0 percent
  */
 
 public class ReportGenerator {
@@ -46,6 +46,7 @@ public class ReportGenerator {
 
     /**
      * method helps generating the report
+     *
      * @param synchronisationStatistics which needs to be iterated for producing the output
      */
     private static void generateReport(List<SynchronisationStatistics> synchronisationStatistics) {
@@ -56,9 +57,9 @@ public class ReportGenerator {
         String threadSafetyCheck = "threadSafetyCheck";
         System.out.format("%1s%60s%20s%16s%25s\n", className, methodName, isSynchronised, isRunnable, threadSafetyCheck);
 
-        int numberOfClasses=synchronisationStatistics.size();
-        ArrayList<String> totalNumberofMethods=new ArrayList<>();
-        ArrayList<String > totalNumberofSynchronisedMethods=new ArrayList<>();
+        int numberOfClasses = synchronisationStatistics.size();
+        ArrayList<String> totalNumberofMethods = new ArrayList<>();
+        ArrayList<String> totalNumberofSynchronisedMethods = new ArrayList<>();
 
         synchronisationStatistics.forEach(stats -> {
             stats.getClassStatistics().getMethodStatistics().forEach(methodStats -> {
@@ -72,13 +73,13 @@ public class ReportGenerator {
                         , stats.getThreadSafetyCheck()
                 );
                 totalNumberofMethods.add(methodStats.getMethodName());
-                if(methodStats.isSynchronised()) {
+                if (methodStats.isSynchronised()) {
                     totalNumberofSynchronisedMethods.add(methodStats.getMethodName());
                 }
             });
         });
 
-        double d = (totalNumberofSynchronisedMethods.size() * 100 )/totalNumberofMethods.size();
+        double d = (totalNumberofSynchronisedMethods.size() * 100) / totalNumberofMethods.size();
         System.out.format("\n Total Number Of Classes: " + numberOfClasses);
         System.out.format("\n Total Number Of Methods: " + totalNumberofMethods.size());
         System.out.format("\n Total Number Of Synchronized Methods: " + totalNumberofSynchronisedMethods.size());
@@ -107,17 +108,10 @@ public class ReportGenerator {
         while (scanner.hasNext()) {
             String line = scanner.next();
             if (line.contains("className")) {
-                if (line.startsWith(".")) {
-                    String replace = line.replace(".", "");
-                    ClassStatistics classStatistics = objectMapper.readValue(replaceSlashToDots(replace), ClassStatistics.class);
-                    stringClassStatisticsHashMap.put(classStatistics.getClassName(), classStatistics);
-                } else {
-                    ClassStatistics classStatistics = objectMapper.readValue(replaceSlashToDots(line), ClassStatistics.class);
-                    stringClassStatisticsHashMap.put(classStatistics.getClassName(), classStatistics);
-                }
+                String replace = line.substring(line.indexOf("{"));
+                ClassStatistics classStatistics = objectMapper.readValue(replaceSlashToDots(replace), ClassStatistics.class);
+                stringClassStatisticsHashMap.put(classStatistics.getClassName(), classStatistics);
             }
-
-
             if (line.contains("testConcurrency") && (line.contains("passed") || line.contains("failed"))) {
                 String result = line.split("-")[2];
                 String className = line.split("-")[0];
